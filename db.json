@@ -1,0 +1,23 @@
+{
+    "aluno": [ {
+        "id": "1",
+        "nome": "Ivonaldo Soares", 
+        "cpf": "1681987497",
+        "email": "ivo@email.com",
+        "telefone": "11 98587474",
+        "endereco": "Rua A n 145, Bairro, Sao paulo - SP"
+    }
+    ],
+    "autor": [
+
+    ],
+    "categoria": [{
+
+    }],
+    "editora": [{
+
+    }],
+    "livro": [{
+
+    }]
+  }

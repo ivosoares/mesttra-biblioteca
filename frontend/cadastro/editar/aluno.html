@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+    <body>
+        <div id="menu"></div>
+        <div class="w3-container w3-light-grey">
+            <h2>Editar Cadastro do Aluno</h2>
+        </div>
+        
+        <form class="w3-container w3-card-4 w3-light-white w3-padding-16 w3-margin">
+            <input type="hidden" name="id" id="id">
+            <div id="corpoFormulario"></div>     
+            
+            <!-- Botão de Atualizar -->
+            <div class="w3-row w3-margin-top">
+                <div class="w3-col w3-container m2 l2">
+                    <button class="w3-button w3-green w3-margin-top w3-round" onClick="alterarUsuario()">Atualizar</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Java Script externo para carregar o menu -->
+        <script src="/frontend/js/include.js"></script>
+
+        <!-- Java Script externo para carregar as constantes -->
+        <script src="/frontend/js/constantes.js"></script>
+        
+        <!-- Java Script com as funções específicas da página -->
+        <script>        
+            // Chamada da função para carregar o corpo do formulario
+            (async function() {
+                await loadHtml("/frontend/componentes/aluno.html", "corpoFormulario");
+                carregarAluno();
+            })();
+
+
+            async function carregarAluno() {
+                //obtem o id passado pela URL como um www-form-encodeurl
+                const idUrl = Number(obterParametroId()); 
+
+                //caso nao exista parametro informado na URL retorna para a 
+                //pagina de cadasto com codigo de status = 2 que informa erro
+                if (idUrl == 0)
+                    window.location.href = `/frontend/cadastro/contato/contato.html?status=${statusOperacao.ID_NAO_INFORMADO}`;
+                
+                //obtem os campos do html
+                const frmAluno = document.getElementById('frmAluno');
+                const nome = document.getElementById('nome');
+                const email = document.getElementById('email');
+                const cpf = document.getElementById('cpf');
+                const telefone = document.getElementById('telefone');
+                const dataCadastro = document.getElementById('data_cadastro');
+
+                let response;
+
+                try {
+                    //realiza a chamada da API para consultar o contato 
+                    response = await fetch(`http://localhost:3000/aluno/${idUrl}`);
+                } catch (error) {
+                    window.location.href = `/cadastro/contato/contato.html?status=${statusOperacao.ERRO_GERAL}`;
+                }
+
+                if (httpResponseOK(response)){
+                    //converte os dados retornados no formato json para 
+                    //objeto no JavaScript 
+                    const user = await response.json();
+                    
+                    //insere os dados nos respectivos campos do html
+                    id.value = user.id;
+                    nome.value = user.nome;
+                    email.value = user.email;
+                    cpf.value = user.cpf;
+                    telefone.value = user.telefone;
+                    endereco.value = user.endereco;
+                    dataCadastro.value = "2025-01-01"
+                }            
+
+            }
+            
+            async function alterarUsuario() {
+                const id = document.getElementById('id').value;
+                const nome = document.getElementById('nome').value;
+                const email = document.getElementById('email').value;
+                const cpf = document.getElementById('cpf').value;
+                const endereco = document.getElementById('endereco').value;
+                const telefone = document.getElementById('telefone').value;
+                const dataCadastro = document.getElementById('data_cadastro').value;
+                debugger
+                parametrosBody = `nome=${nome}&email=${email}&cpf=${cpf}&endereco=${endereco}&telefone=${telefone}&data_cadastro=${dataCadastro}`;
+                
+                let response;
+
+                try {
+                    const conteudoHttp = {
+                        method: 'PUT',
+                        headers: { "Content-type": "application/x-www-form-urlencoded; charset=UTF-8" },
+                        body: parametrosBody
+                    }
+
+                    response = await fetch(`http://localhost:3000/aluno/${id}`, conteudoHttp);
+                } catch (error) {
+                    window.location.href = `/frontend/cadastro/aluno.html?status=${statusOperacao.ERRO_GERAL}`;
+                }                
+                
+                if (httpResponseOK(response))
+                    //retorna para a pagina de cadastro informando sucesso com status = 1
+                    window.location.href = `/frontend/cadastro/aluno.html?status=${statusOperacao.SUCESSO}`;
+            }   
+            
+            function httpResponseOK(response){
+                if (!response.ok) {
+                    window.location.href = `/frontend/cadastro/aluno.html?status=${statusOperacao.ENDPOINT_NAO_ENCONTRADO}`;
+                    return false; 
+                } else if (response.status == 204) {
+                    window.location.href = `/frontend/cadastro/aluno.html?status=${statusOperacao.ID_NAO_ENCONTRADO}`;
+                    return false; 
+                }
+
+                return true;
+            }
+
+            function obterParametroId() {
+                // Obter a URL atual
+                const url = new URL(window.location.href);
+            
+                // Usar URLSearchParams para acessar os parâmetros da URL
+                const parametros = new URLSearchParams(url.search);
+            
+                // Obter o valor do parâmetro 'id'
+                const id = parametros.get('id');
+            
+                return id;
+            }
+
+        </script>
+  </body>
+</html>

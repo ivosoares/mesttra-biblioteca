@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+    <body>
+        <div id="menu"></div>
+        <div class="w3-container w3-light-grey">
+            <h2>Cadastro de Aluno</h2>
+        </div>
+
+        <div class="w3-container w3-card-4 w3-light-white w3-padding-16 w3-margin">    
+          <a href="/frontend/cadastro/adicionar/aluno.html"><button class="w3-button w3-green w3-margin-top w3-round">Novo Aluno</button></a>
+
+            <table class="w3-table w3-striped w3-border w3-margin-top">
+              <thead>
+                  <tr class="w3-gray">
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Endereço</th>
+                    <th>Data Cadastro</th>
+                    <th>Ações</th>
+                  </tr>
+              </thead>
+              <tbody id="dadosUsuarios">
+                  <!-- Os dados dos usuários serão carregados aqui apos invocar a API -->
+              </tbody>
+            </table>
+        </div>
+
+        </form>
+
+         <!-- Modal para excluir o usuário -->
+        <div id="modalExcluir" class="w3-modal">
+          <div class="w3-modal-content w3-animate-top w3-card-4">
+              <header class="w3-container w3-black">
+                  <span onclick="fecharModalExcluir()" class="w3-button w3-display-topright">&times;</span>
+                  <h2>Excluir Usuário</h2>
+              </header>
+              <div class="w3-container" >
+                  <br>
+                  <h3>Confirma a exclusão do usuário?</h3>
+                  <br>
+                  <div style="text-align: right;">
+                      <button class="w3-button w3-red w3-round" data-id="" id="botaoConfirmarExcluir" onclick="excluirUsuario(this)">Sim</button>
+                      <button class="w3-button w3-gray w3-round" onclick="fecharModalExcluir()">Não</button>    
+                  </div>
+                  <br>        
+              </div>
+          </div>
+        </div>
+
+        <!-- Modal para exibir mensagem para o usuario -->
+        <div id="modalMensagem" class="w3-modal">
+          <div class="w3-modal-content w3-animate-top w3-card-4">
+              <header class="w3-container w3-black">
+                  <span onclick="fecharModalMensagem()" class="w3-button w3-display-topright">&times;</span>
+                  <h2 id="mensagemTitulo"></h2>
+              </header>
+              <div class="w3-container">
+                  <br>
+                  <h4 id="mensagemStatus"></h4>
+                  <br>
+                  <div style="text-align: right;">
+                      <button class="w3-button w3-green w3-round" onclick="fecharModalMensagem()">Fechar</button>
+                  </div>
+                  <br>        
+              </div>
+          </div>
+        </div>
+      
+        <!-- Java Script externo para carregar o menu -->
+        <script src="/frontend/js/include.js"></script>
+
+        <!-- Java Script externo para carregar as constantes -->
+        <script src="/frontend/js/constantes.js"></script>
+
+        <script>      
+          //realiza o processamento do conteudo no frontend assim que a pagina for carregada
+          window.onload = processarCarregamentoPagina;
+
+          //verifica se tem alguma mensagem para exibir para o usuario
+          //e realiza o carregamento dos dados dos usuários a partir da API de consulta
+          function processarCarregamentoPagina() {
+              //obtem o status se existir
+              codigoStatus = Number(obterParametroStatus()); 
+
+              let mensagem;
+
+              //determina a mensagem de status se existir
+              if (codigoStatus != 0) {
+                  mensagem = retornarMensagem(codigoStatus);
+                  abrirModalMensagem("Atualização de Usuário", mensagem);
+              }
+
+              //realiza o carregados dos dados dos usuários
+              carregarUsuarios();
+          }
+
+          //realiza o carregamento dos dados do usuário no backend
+          async function carregarUsuarios() {
+              try {
+                  //faz a chamada na API
+                  const response = await fetch('http://localhost:3000/aluno');
+
+                  //se a chamada retornar algum erro
+                  if (!response.ok) {
+                      //determina o codigo da mensagem base no status do http
+                      const codigoStatus = determinarCodigoStatus(response);
+                      
+                      //determina a mensagem a ser exibida
+                      mensagem = retornarMensagem(codigoStatus);
+
+                      //exibe o modal com a mensagem
+                      abrirModalMensagem("Consultar Usuários", mensagem);
+
+                      //cancela a execução do restante da funcao
+                      return ;
+                  }
+
+                  //se chegou ate aqui a API executou com sucesso
+                  //converte os dados de JSON para objeto Java Script
+                  const usuarios = await response.json();
+                  
+                  //adiciona os dados dos usuários na div de listagem de usuarios
+                  adicionarUsuariosTabelaHtml(usuarios);
+              } catch (error) {
+                  abrirModalMensagem("Consultar Usuários", 'Erro: ' + error.message);
+              }
+          }
+
+          //realiza o cadastro do usuario, executando a API no backend 
+          async function realizarCadastro() {
+              //obtem o campo do html onde foi digitado o nome
+              const nome = document.getElementById('nome');
+
+              //obtem o campo do html onde foi digitado o email
+              const email = document.getElementById('email');
+              
+              //monta a string no formato www-form-urlencode
+              const httpBody = `nome=${nome.value}&email=${email.value}`;
+              
+              try {
+                  //constroi o objeto contendo o conteudo a ser inserido na requisicao http
+                  const conteudoHttp = {
+                      method: 'POST',
+                      headers: { "Content-type": "application/x-www-form-urlencoded; charset=UTF-8" },
+                      body: httpBody
+                  }
+
+                  const httpResponse = await fetch('http://localhost:3000/aluno', conteudoHttp);
+                  
+                  if (!httpResponse.ok) {
+                      abrirModalMensagem("Cadastrar Usuário", `Erro: ${httpResponse.statusText}`);
+                  }
+                  
+                  //limpa os campos do html para permitir a digitacao do proximo cadastro
+                  nome.value = "";
+                  email.value = "";
+                  
+                  carregarUsuarios();
+              } catch (error) {
+                  alert('Erro ao cadastrar: ' + error.message);
+              }
+          }
+
+          //realiza a exclusão do usuário no backend
+          async function excluirUsuario(botao) {
+              let mensagem;
+
+              try {
+                  //obtem o id do usuario a ser excluido
+                  const id = botao.getAttribute('data-id');
+
+                  const conteudoHttp = {
+                      method: 'DELETE'
+                  }
+
+                  //realiza a chamada da API
+                  const response = await fetch(`http://localhost:300/excluir/${id}`, conteudoHttp );
+
+                  //determina o codigo de status baseado no http response
+                  const codigoStatus = determinarCodigoStatus(response);
+
+                  //determina a mensagem a ser exibida para o usuario
+                  mensagem = retornarMensagem(codigoStatus);
+                  
+              } catch (error) {
+                  mensagem = "Erro ao excluir usuário: " + error.message;
+              }
+
+              //fecha o modal excluir
+              fecharModalExcluir();   
+
+              //abre o modal de status para informar o resultado da exclusao, passando os parametros
+              //do titulo do modal e a mensagem que será exibida
+              abrirModalMensagem("Exclusão Usuário", mensagem);
+
+              //atualiza os dados dos usuarios
+              carregarUsuarios();
+          }
+
+          function adicionarUsuariosTabelaHtml(usuarios){
+              //obtem a div que contem os dados dos usuarios
+              const divUsuarios = document.getElementById('dadosUsuarios');
+
+              //limpa os dados da div para atualizar com os novos dados
+              divUsuarios.innerHTML = '';
+
+              //acessa cada elemento do vetor de usuarios e executa a funcao
+              //adicionarLinhaTabelaHtml com o usuario obtido
+              for (let i = 0; i < usuarios.length; i++) {
+                  //cria uma nova linha da tabela html
+                  const linhaTabela = document.createElement('tr');
+                  
+                  //monta o conteudo da linha
+                  linhaTabela.innerHTML = `
+                          <td>${usuarios[i].nome}</td>
+                          <td>${usuarios[i].cpf}</td>
+                          <td>${usuarios[i].email}</td>
+                          <td>${usuarios[i].telefone}</td>
+                          <td>${usuarios[i].endereco}</td>
+                          <td></td>
+                          <td>
+                            <a href="/frontend/cadastro/editar/aluno.html?id=${usuarios[i].id}"><button class="w3-button w3-green  w3-round">Editar</button></a>
+                            <button class="w3-button w3-red  w3-round" onclick="abrirModalExcluir(${usuarios[i].id})">Excluir</button>
+                          </td>`;
+
+                  //adiciona a nova linha na div de usuarios
+                  divUsuarios.appendChild(linhaTabela);       
+              }  
+          }
+
+          //padroniza o codigo de status dentro da aplicacao frontend
+          function determinarCodigoStatus(response){
+              if (!response.ok) 
+                  return statusOperacao.ENDPOINT_NAO_ENCONTRADO;
+              else if (response.status == 204) 
+                  return statusOperacao.ID_NAO_ENCONTRADO; 
+              else if (response.status == 200)
+                  return statusOperacao.SUCESSO;
+              else  
+                  return statusOperacao.ERRO_GERAL;
+          }
+
+          //gera uma mensagem amigavel para o usuario baseado no codigo de status
+          function retornarMensagem(codigoStatus){
+              let mensagem = "Status informado desconhecido.";
+
+              switch (codigoStatus) {
+                  case statusOperacao.SUCESSO:
+                      mensagem = "Operação realizada com sucesso!";
+                      break;
+                  case statusOperacao.ID_NAO_INFORMADO: 
+                      mensagem = "Erro ao executar operação, ID não informado.";
+                      break;
+                  case statusOperacao.ERRO_GERAL: 
+                      mensagem = "Erro ao processar a operação.";
+                      break;
+                  case statusOperacao.ID_NAO_ENCONTRADO: 
+                      mensagem = "Erro ao executar operação, ID informado não encontrado.";
+                      break;
+                  case statusOperacao.ENDPOINT_NAO_ENCONTRADO: 
+                      mensagem = "Erro ao executar operação, Endpoint não encontrado.";
+                      break;
+                  default:
+                      break;
+              }
+
+              return mensagem;
+          }
+
+          //realiza a obtencao do parametro id caso seja passado na URL
+          function obterParametroId() {
+              // Obtem o objeto que representa a URL que esta no browser
+              const url = new URL(window.location.href);
+
+              // Converte o objeto URL para URLSearchParams para acessar os parametros da URL
+              const parametros = new URLSearchParams(url.search);
+
+              // Obtem o valor do parâmetro 'id'
+              return Number(parametros.get('id'));
+          }
+
+          //realiza a obtencao do parametro status caso seja passado na URL
+          function obterParametroStatus() {
+              // Obtem o objeto que representa a URL que esta no browser
+              const url = new URL(window.location.href);
+
+              // Converte o objeto URL para URLSearchParams para acessar os parametros da URL
+              const parametros = new URLSearchParams(url.search);
+
+              // Obtem o valor do parâmetro 'status'
+              return Number(parametros.get('status'));
+          }
+
+          //realiza a abertura do modal de confirmação de exclusão do usuario
+          function abrirModalExcluir(id) {
+              const botaoConfirmarExcluir = document.getElementById('botaoConfirmarExcluir');
+              botaoConfirmarExcluir.setAttribute('data-id', id);
+
+              const modalExcluir = document.getElementById('modalExcluir');
+              modalExcluir.style.display = 'block';
+          }
+
+          //realiza o fechamento do modal de confirmação de exclusão do usuario
+          function fecharModalExcluir() {
+              const modalExcluir = document.getElementById('modalExcluir');
+              modalExcluir.style.display = 'none';
+          }
+
+          function abrirModalMensagem(titulo, mensagem) {
+              // Configura o html do titulo do modal
+              document.getElementById('mensagemTitulo').innerHTML = titulo;
+              // Configura o html da mensagem do modal
+              document.getElementById('mensagemStatus').innerHTML = mensagem;
+              // Altera o atributo css do modal para ser exibido
+              document.getElementById('modalMensagem').style.display = 'block';
+          }
+
+          function fecharModalMensagem() {
+              const modalExcluir = document.getElementById('modalMensagem');
+              modalExcluir.style.display = 'none';
+          }
+        </script>
+    </body>
+</html>
