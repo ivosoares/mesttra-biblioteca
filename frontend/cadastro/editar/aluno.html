@@ -42,12 +42,10 @@
 
             async function carregarAluno() {
                 //obtem o id passado pela URL como um www-form-encodeurl
-                const idUrl = Number(obterParametroId()); 
+                const idUrl = obterParametroId(); 
 
                 //caso nao exista parametro informado na URL retorna para a 
                 //pagina de cadasto com codigo de status = 2 que informa erro
-                if (idUrl == 0)
-                    window.location.href = `/frontend/cadastro/contato/contato.html?status=${statusOperacao.ID_NAO_INFORMADO}`;
                 
                 //obtem os campos do html
                 const frmAluno = document.getElementById('frmAluno');
@@ -78,42 +76,48 @@
                     cpf.value = user.cpf;
                     telefone.value = user.telefone;
                     endereco.value = user.endereco;
-                    dataCadastro.value = "2025-01-01"
+                    dataCadastro.value = user.data_cadastro;
                 }            
 
             }
             
             async function alterarUsuario() {
-                const id = document.getElementById('id').value;
                 const nome = document.getElementById('nome').value;
                 const email = document.getElementById('email').value;
                 const cpf = document.getElementById('cpf').value;
                 const endereco = document.getElementById('endereco').value;
                 const telefone = document.getElementById('telefone').value;
-                const dataCadastro = document.getElementById('data_cadastro').value;
-                debugger
-                parametrosBody = `nome=${nome}&email=${email}&cpf=${cpf}&endereco=${endereco}&telefone=${telefone}&data_cadastro=${dataCadastro}`;
+                const data_cadastro = document.getElementById('data_cadastro').value;
+
+
+                alunoAtualizado = {
+                    nome,
+                    email,
+                    cpf,
+                    endereco,
+                    telefone,
+                    data_cadastro
+                };
                 
                 let response;
 
                 try {
                     const conteudoHttp = {
                         method: 'PUT',
-                        headers: { "Content-type": "application/x-www-form-urlencoded; charset=UTF-8" },
-                        body: parametrosBody
+                        headers: { "Content-type": "application/json" },
+                        body: JSON.stringify(alunoAtualizado)
                     }
 
                     response = await fetch(`http://localhost:3000/aluno/${id}`, conteudoHttp);
+                    alert('usuario alterado')
                 } catch (error) {
                     window.location.href = `/frontend/cadastro/aluno.html?status=${statusOperacao.ERRO_GERAL}`;
                 }                
                 
-                if (httpResponseOK(response))
-                    //retorna para a pagina de cadastro informando sucesso com status = 1
-                    window.location.href = `/frontend/cadastro/aluno.html?status=${statusOperacao.SUCESSO}`;
             }   
             
             function httpResponseOK(response){
+                debugger;
                 if (!response.ok) {
                     window.location.href = `/frontend/cadastro/aluno.html?status=${statusOperacao.ENDPOINT_NAO_ENCONTRADO}`;
                     return false; 
