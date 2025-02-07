@@ -73,7 +73,7 @@ export const autoresModule = {
                 <td>
                     <button class="w3-button w3-red w3-round" 
                         id="btn_excluir"
-                            onclick=this.excluirAutor('${autor.id}')>
+                            onclick=autoresModule.excluirAutor('${autor.id}')>
                         Excluir
                     </button>
                 </td>
@@ -113,3 +113,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // })
 
 })
+
+window.autoresModule = autoresModule;
