@@ -22,6 +22,44 @@ export const autoresModule = {
             utils.mostrarMensagem('Erro', error.message);
         }
     },
+    async carregaAutor() {
+        const id = utils.obterParametroUrl('id');
+        try {
+            const autor = await apiBase.buscarPorId(ENDPOINT, id);
+            this.preencherFormulario(autor);
+        } catch (error) {
+            utils.mostrarMensagem('Erro', error.message);
+        }
+    },    
+    async atualizarAutor(event) {
+        event.preventDefault();
+        const id = utils.obterParametroUrl('id');
+        try {
+            const dados = utils.getFormData(event.target);
+            await apiBase.atualizar(ENDPOINT, id, dados);
+            utils.mostrarMensagem('sucesso', 'Autor atualizado com sucesso')
+        } catch (error) {
+            utils.mostrarMensagem('Erro', error.message);
+        }
+    },
+    async excluirAutor(id) {
+        if(!confirm('Deseja realmente excluir o autor ?')) return;
+
+        try {
+            await apiBase.excluir(ENDPOINT,id);
+            utils.mostrarMensagem('sucesso', 'Autor excluido com sucesso');
+            await this.carregarAutores();
+        } catch (error) {
+            utils.mostrarMensagem('Erro', error.message);
+        }
+
+    },
+    preencherFormulario(autor) {
+        Object.keys(autor).forEach(key => {
+            const input = document.getElementById(key)
+            if(input) input.value = autor[key];
+        })
+    },
     renderizarTabela(autores) {
         const resultado = document.getElementById('dados');
         resultado.innerHTML = autores.map( autor => `
@@ -34,6 +72,7 @@ export const autoresModule = {
                 </td>
                 <td>
                     <button class="w3-button w3-red w3-round" 
+                        id="btn_excluir"
                             onclick=this.excluirAutor('${autor.id}')>
                         Excluir
                     </button>
@@ -47,16 +86,30 @@ export const autoresModule = {
 //incialização dos scripts
 
 document.addEventListener('DOMContentLoaded', () => {
+
     if(document.getElementById('dados')) {
         autoresModule.carregarAutores();
+    }
+
+    if(utils.obterParametroUrl('id')) {
+        autoresModule.carregaAutor();
     }
 
     //Configuração do formulario
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', (event) => {
-            autoresModule.cadastrarAutor(event)
+            if(utils.obterParametroUrl('id')){
+                autoresModule.atualizarAutor(event);
+            }else {
+                autoresModule.cadastrarAutor(event)
+            }
         })
     }
+
+    // const btn_excluir = document.getElementById('btn_excluir')
+    // btn_excluir.addEventListener('onClik', () => {
+    //     autoresModule.excluirAutor()
+    // })
 
 })

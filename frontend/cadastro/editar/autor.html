@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+    <body>
+        <div id="menu"></div>
+        <div class="w3-container w3-light-grey">
+            <h2>Cadastro de Autores</h2>
+        </div>
+        
+        <form method="post" class="w3-container w3-card-4 w3-light-white w3-padding-16 w3-margin">
+          <div id="corpoFormulario"></div>       
+          
+             <!-- Botão de Enviar -->
+            <div class="w3-row w3-margin-top">
+                <div class="w3-col w3-container m2 l2">
+                    <button class="w3-button w3-green w3-margin-top w3-round" type="submit">Atualizar</button>
+                </div>
+            </div>
+        </form>
+
+        <script src="/frontend/js/include.js"></script>
+        <script type="module" src="/frontend/js/autor.js"></script>
+        <script>
+            // Chamada da função para carregar o corpo do formulario
+            loadHtml("/frontend/componentes/autor-form.html", "corpoFormulario");
+        </script>
+  </body>
+</html>
