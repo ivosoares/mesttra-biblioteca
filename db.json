@@ -1,28 +1,23 @@
 {
   "aluno": [
     {
-      "nome": "teste teste",
+      "id": "475b",
+      "nome": "Ivonaldo",
+      "cpf": "0168516984/8",
+      "data_cadastro": "2025-02-06",
       "email": "ivo@email.com",
-      "cpf": "09846987",
-      "endereco": "teste endereco",
-      "telefone": "119898884",
-      "data_cadastro": "2025-02-05",
-      "id": "3c57"
-    },
-    {
-      "id": "f9cf",
-      "nome": "testenovo",
-      "cpf": "0168106810",
-      "data_cadastro": "2025-02-05",
-      "email": "ivo@teste.com",
-      "endereco": "teste",
-      "telefone": "11983824878"
+      "endereco": "rua x ",
+      "telefone": "1198689419"
     }
   ],
   "autor": [
     {
-      "id":"3c57",
+      "id": "3c57",
       "nome": "Machado de Assis"
+    },
+    {
+      "id": "da48",
+      "nome": "Clarisse lispector"
     }
   ],
   "categoria": [

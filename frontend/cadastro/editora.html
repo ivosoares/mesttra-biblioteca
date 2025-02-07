@@ -5,12 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"><body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
     <body>
         <div id="menu"></div>
-        Editora
+        <div class="w3-container w3-light-grey">
+            <h2>Cadastro de Editora</h2>
+        </div>
+
+        <div class="w3-container w3-card-4 w3-light-white w3-padding-16 w3-margin">    
+          <a href="/frontend/cadastro/adicionar/aluno.html"><button class="w3-button w3-green w3-margin-top w3-round">Novo Aluno</button></a>
+
+            <table class="w3-table w3-striped w3-border w3-margin-top">
+              <thead>
+                  <tr class="w3-gray">
+                    <th>Nome</th>
+                  </tr>
+              </thead>
+              <tbody id="dadosUsuarios">
+                  <!-- Os dados dos usuários serão carregados aqui apos invocar a API -->
+              </tbody>
+            </table>
+        </div>
+
+        </form>
+
+         <!-- Modal para excluir o usuário -->
+        <div id="modalExcluir" class="w3-modal">
+          <div class="w3-modal-content w3-animate-top w3-card-4">
+              <header class="w3-container w3-black">
+                  <span onclick="fecharModalExcluir()" class="w3-button w3-display-topright">&times;</span>
+                  <h2>Excluir Usuário</h2>
+              </header>
+              <div class="w3-container" >
+                  <br>
+                  <h3>Confirma a exclusão do usuário?</h3>
+                  <br>
+                  <div style="text-align: right;">
+                      <button class="w3-button w3-red w3-round" data-id="" id="botaoConfirmarExcluir" onclick="excluirUsuario(this)">Sim</button>
+                      <button class="w3-button w3-gray w3-round" onclick="fecharModalExcluir()">Não</button>    
+                  </div>
+                  <br>        
+              </div>
+          </div>
+        </div>
+
+        <!-- Modal para exibir mensagem para o usuario -->
+        <div id="modalMensagem" class="w3-modal">
+          <div class="w3-modal-content w3-animate-top w3-card-4">
+              <header class="w3-container w3-black">
+                  <span onclick="fecharModalMensagem()" class="w3-button w3-display-topright">&times;</span>
+                  <h2 id="mensagemTitulo"></h2>
+              </header>
+              <div class="w3-container">
+                  <br>
+                  <h4 id="mensagemStatus"></h4>
+                  <br>
+                  <div style="text-align: right;">
+                      <button class="w3-button w3-green w3-round" onclick="fecharModalMensagem()">Fechar</button>
+                  </div>
+                  <br>        
+              </div>
+          </div>
+        </div>
+      
+        <!-- Java Script externo para carregar o menu -->
+        <script src="/frontend/js/include.js"></script>
+
+        <!-- Java Script externo para carregar as constantes -->
+        <script src="/frontend/js/constantes.js"></script>
+
+        <script src="/frontend/js/aluno.js"></script>
     </body>
-    <script src="/frontend/js/include.js"></script>
 </html>
